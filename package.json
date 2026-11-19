@@ -1,0 +1,20 @@
+{
+  "name": "zhang-zp-genealogy",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prod": "vite build && surge dist zhang-zupu.surge.sh"
+  },
+  "dependencies": {
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "surge": "^0.24.6",
+    "vite": "^6.0.7"
+  }
+}
