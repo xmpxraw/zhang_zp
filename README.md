@@ -2,12 +2,14 @@
 
 Vue 3 + Vite 单页应用：图谱 / 文字双视图、按分支筛选、PC 与手机自适应。
 
-在线地址：https://zhang-zupu.surge.sh
+在线地址（GitHub Pages，主）：https://xmpxraw.github.io/zhang_zp/
+
+在线地址（surge，备）：https://zhang-zupu.surge.sh
 
 直链示例（图谱 + 只看文枢支）：
-https://zhang-zupu.surge.sh/?v=2#v=tree&b=wenshu
+https://xmpxraw.github.io/zhang_zp/#v=tree&b=wenshu
 
-> hash 参数：`v=tree|text` 切视图，`b=<分支key>` 筛分支（`wenhui` / `yuanqing` / `qunlin` / `hanxian` / `qingfei` / `wenshu`），省略即全部。`?v=2` 只是刷新缓存的随手参数，可去掉。
+> hash 参数：`v=tree|text` 切视图，`b=<分支key>` 筛分支（`wenhui` / `yuanqing` / `qunlin` / `hanxian` / `qingfei` / `wenshu`），省略即全部。
 
 ## 命令
 
@@ -16,10 +18,13 @@ npm install      # 安装依赖
 npm run dev      # 本地开发（http://localhost:5173）
 npm run build    # 构建到 dist/
 npm run preview  # 预览构建产物
+npm run pages    # 构建并发布到 GitHub Pages（推 gh-pages 分支）
 npm run prod     # 构建并发布到 surge（zhang-zupu.surge.sh）
 ```
 
-首次发布前需登录（只需一次，会自动注册）：
+GitHub Pages 源：仓库 Settings → Pages → Deploy from a branch → `gh-pages` / root，首次配置后在推送 `gh-pages` 时自动发布。
+
+surge 首次发布前需登录一次：
 
 ```bash
 npx surge login
