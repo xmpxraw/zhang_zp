@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f2e6">
+<title>张氏族谱</title>
+<style>
+  :root{
+    --line:#c9ac7e;
+    --line-2:#b08d57;
+    --ink:#2e2a22;
+    --ink-2:#6f6555;
+    --gold:#96794c;
+    --title:#7a5a2e;
+    --paper:#f7f2e6;
+    --card:#fffdf8;
+    --card-2:#f9f4e8;
+    --radius:6px;
+    --cw:126px;
+    --ch:64px;
+    --gap:26px;
+    --lip:9px;
+    --fs-name:15.5px;
+    --fs-year:11px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0; width:100%}
+  html{-webkit-text-size-adjust:100%}
+  [hidden]{display:none !important}
+  html{background-color:var(--paper); min-height:100%}
+  body{
+    font-family:"Songti SC","Noto Serif SC","Source Han Serif SC",SimSun,serif;
+    color:var(--ink);
+    background-color:var(--paper);
+    background-image:
+      radial-gradient(circle at 16% 8%, rgba(201,172,126,.14), transparent 55%),
+      radial-gradient(circle at 84% 58%, rgba(180,160,120,.10), transparent 50%),
+      radial-gradient(circle at 50% 100%, rgba(190,170,130,.12), transparent 60%);
+    background-repeat:no-repeat;
+    background-size:100% 100%;
+    min-height:100dvh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ================= 顶栏 ================= */
+  .top{
+    position:sticky; top:0; z-index:20;
+    background:rgba(247,242,230,.92);
+    backdrop-filter:blur(8px) saturate(1.1);
+    -webkit-backdrop-filter:blur(8px) saturate(1.1);
+    border-bottom:1px solid rgba(176,141,87,.28);
+  }
+  .bar{
+    width:100%;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:14px 32px 8px;
+  }
+  .top h1{
+    margin:0; font-size:20px; font-weight:600;
+    letter-spacing:7px; text-indent:7px; color:var(--title);
+  }
+  .seg{
+    display:inline-flex; padding:3px; border:1px solid var(--line-2);
+    border-radius:999px; background:var(--card); flex:none;
+    box-shadow:0 1px 2px rgba(120,90,40,.06);
+  }
+  .seg button{
+    appearance:none; border:0; background:transparent; font:inherit;
+    font-size:13.5px; letter-spacing:2px; color:var(--ink-2);
+    padding:6px 20px; border-radius:999px; cursor:pointer;
+    transition:background .18s ease, color .18s ease;
+  }
+  .seg button:hover{color:var(--title)}
+  .seg button[aria-pressed="true"]{background:var(--line-2); color:#fff}
+  .seg button:focus-visible,
+  .chip:focus-visible,
+  .card:focus-visible{outline:2px solid var(--line-2); outline-offset:2px}
+
+  .chips{
+    display:flex; gap:8px; overflow-x:auto; scrollbar-width:none;
+    padding:0 32px 10px;
+  }
+  .chips::-webkit-scrollbar{display:none}
+  .chips.more{
+    -webkit-mask-image:linear-gradient(90deg, #000 0, #000 calc(100% - 34px), transparent 100%);
+    mask-image:linear-gradient(90deg, #000 0, #000 calc(100% - 34px), transparent 100%);
+  }
+  .chips.more.end{
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 34px, #000 100%);
+    mask-image:linear-gradient(90deg, transparent 0, #000 34px, #000 100%);
+  }
+  .chip{
+    flex:none; appearance:none; font:inherit; font-size:12.5px; letter-spacing:1px;
+    cursor:pointer; padding:4px 14px; border-radius:999px;
+    border:1px solid rgba(176,141,87,.42); background:transparent; color:var(--ink-2);
+    transition:background .18s ease, color .18s ease, border-color .18s ease;
+  }
+  .chip:hover{border-color:var(--line-2); color:var(--title)}
+  .chip[aria-pressed="true"]{
+    background:rgba(176,141,87,.15); border-color:var(--line-2); color:var(--title);
+  }
+
+  /* ================= 图谱 ================= */
+  .grid{
+    display:grid; align-items:start;
+    gap:44px 24px; padding:44px 32px 60px; width:100%;
+  }
+  #grid-a{grid-template-columns:repeat(3, minmax(0,1fr))}
+  #grid-b{grid-template-columns:repeat(2, minmax(0,1fr))}
+  #grid-main{grid-template-columns:1fr}
+  #grid-a > .branch:not(:first-child),
+  #grid-b > .branch:not(:first-child){
+    border-left:1px dashed rgba(176,141,87,.22);
+  }
+  .grid + .grid{border-top:1px dashed rgba(176,141,87,.28)}
+  .grid:not(:has(> .branch:not([hidden]))){display:none}
+
+  .branch{
+    position:relative; padding-left:30px; min-width:0;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .grid-main .tree{padding-left:40px}
+  h2{
+    margin:0 0 24px; font-size:17px; font-weight:600;
+    letter-spacing:8px; text-indent:8px; color:var(--title);
+    padding-bottom:8px; border-bottom:1px solid rgba(176,141,87,.38);
+    min-width:150px; text-align:center;
+  }
+
+  .tree-wrap{
+    width:100%; max-width:100%; display:flex; justify-content:center;
+    overflow-x:auto; scrollbar-width:thin; -webkit-overflow-scrolling:touch;
+  }
+  .tree-wrap::-webkit-scrollbar{height:5px}
+  .tree-wrap::-webkit-scrollbar-thumb{background:rgba(176,141,87,.35); border-radius:3px}
+  .tree{
+    display:flex; justify-content:center; position:relative;
+    width:max-content; flex:none;
+    padding-left:30px; transform-origin:top center;
+  }
+  .node{display:flex; flex-direction:column; align-items:center}
+  .node > ul{
+    display:flex; justify-content:center; margin:0;
+    padding:var(--gap) 0 0; list-style:none; position:relative;
+  }
+  .node > ul::before{
+    content:""; position:absolute; top:0; left:50%;
+    height:var(--gap); border-left:1px solid var(--line);
+  }
+  .node > ul > li{position:relative; padding:var(--gap) var(--lip) 0}
+  .node > ul > li::before{
+    content:""; position:absolute; top:0; left:0; width:100%;
+    border-top:1px solid var(--line);
+  }
+  .node > ul > li::after{
+    content:""; position:absolute; top:0; left:50%;
+    height:var(--gap); border-left:1px solid var(--line);
+  }
+  .node > ul > li:only-child::before{display:none}
+  .node > ul > li:first-child::before{left:50%; width:50%}
+  .node > ul > li:last-child::before{width:50%}
+
+  .card{
+    width:var(--cw); height:var(--ch); padding:5px 4px; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    background:linear-gradient(var(--card), var(--card-2));
+    border:1px solid var(--line-2); border-radius:var(--radius);
+    box-shadow:0 1px 3px rgba(120,90,40,.10);
+    transition:box-shadow .18s ease, border-color .18s ease, transform .18s ease;
+  }
+  .card:hover{
+    border-color:#9c7742;
+    box-shadow:0 3px 10px rgba(120,90,40,.20);
+    transform:translateY(-1px);
+  }
+  .card.cp{width:calc(var(--cw) * 1.44); padding:0; flex-direction:row; align-items:stretch}
+  .card.cp .p{
+    flex:1; min-width:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:3px; padding:5px 3px;
+  }
+  .card.cp .p + .p{border-left:1px solid #dfcba8}
+  .nm{
+    font-size:var(--fs-name); font-weight:600; letter-spacing:1px;
+    white-space:nowrap; color:var(--ink);
+  }
+  .yr{
+    font-size:var(--fs-year); color:var(--ink-2);
+    font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+
+  .gen{
+    position:absolute; writing-mode:vertical-rl; text-orientation:upright;
+    font-size:11.5px; letter-spacing:4px; color:var(--gold); opacity:.9;
+    pointer-events:none;
+  }
+
+  .swipe{display:none; margin:6px 0 0; font-size:11.5px; letter-spacing:2px; color:var(--gold); opacity:.75}
+  .branch.scrollable .swipe{display:block}
+  .branch.scrollable .tree-wrap{
+    scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+    mask-image:linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+  }
+  .branch.scrollable .tree-wrap::-webkit-scrollbar{display:none}
+
+  .hint{
+    text-align:center; font-size:12px; letter-spacing:2px;
+    color:var(--gold); opacity:.8; padding:0 16px 34px;
+  }
+
+  /* ================= 文字（谱牒） ================= */
+  .text{padding:36px 32px 64px; display:flex; flex-direction:column; gap:26px}
+  .tgrid{
+    display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start;
+    gap:24px; width:100%; margin:0 auto;
+  }
+  .tgrid:not(:has(.tb:not([hidden]))){display:none}
+  .tgrid .tb{flex:1 1 340px; min-width:0}
+  .tgrid.main .tb{flex:1 1 100%; max-width:1180px; margin:0 auto}
+
+  .tb{
+    background:linear-gradient(var(--card), var(--card-2));
+    border:1px solid rgba(176,141,87,.4); border-radius:8px;
+    padding:22px 26px 10px;
+    box-shadow:0 1px 4px rgba(120,90,40,.07);
+  }
+  .tb h2{display:table; margin:0 auto 8px; min-width:0}
+  .tg{
+    display:grid; grid-template-columns:26px 1fr; gap:0 16px;
+    padding:13px 0; border-top:1px dashed rgba(176,141,87,.32);
+  }
+  .tg:first-of-type{border-top:0}
+  .tg .gl{
+    writing-mode:vertical-rl; text-orientation:upright;
+    font-size:13px; letter-spacing:5px; color:var(--gold);
+    justify-self:center; opacity:.9;
+  }
+  .pe{
+    padding:9px 10px; margin:0 -10px; border-radius:6px;
+    scroll-margin-top:150px; transition:background .45s ease;
+  }
+  .pe + .pe{border-top:1px dotted rgba(176,141,87,.28)}
+  .pe.hit{background:rgba(176,141,87,.17)}
+  .pe .h{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+  .pe .n{
+    font-size:17px; font-weight:600; letter-spacing:1.5px;
+    cursor:pointer; border-bottom:1px solid transparent; transition:color .15s ease, border-color .15s ease;
+  }
+  .pe .n:hover{color:var(--title); border-bottom-color:var(--line)}
+  .pe .y{font-size:12.5px; color:var(--ink-2); font-variant-numeric:tabular-nums}
+  .pe .r{font-size:13.5px; color:var(--ink-2); line-height:1.85; margin-top:1px}
+  .pe .r b{font-weight:normal; color:var(--gold); margin-right:7px; letter-spacing:1px}
+  .pe .lk{
+    color:var(--ink); cursor:pointer;
+    border-bottom:1px dotted var(--line); transition:color .15s ease;
+  }
+  .pe .lk:hover{color:var(--title)}
+
+  .card.hit{
+    box-shadow:0 0 0 3px rgba(176,141,87,.5), 0 3px 12px rgba(120,90,40,.25);
+    border-color:#9c7742;
+  }
+
+  /* ================= 中等宽度 ================= */
+  @media (max-width:1200px){
+    .grid{gap:34px 18px; padding:34px 18px 48px}
+    .branch{padding-left:18px}
+    #grid-a{grid-template-columns:repeat(2, minmax(0,1fr))}
+    #grid-a > .branch:nth-child(3){border-left:0}
+    #grid-b{grid-template-columns:minmax(0,1fr)}
+    #grid-b > .branch:not(:first-child){border-left:0}
+  }
+
+  @media (max-width:900px) and (min-width:701px){
+    #grid-a{grid-template-columns:minmax(0,1fr)}
+    #grid-a > .branch{border-left:0}
+  }
+
+  /* ================= 移动端 ================= */
+  @media (max-width:700px){
+    body{overflow-x:hidden}
+    .bar{padding:10px 12px 6px; gap:10px}
+    .top h1{font-size:17px; letter-spacing:4px; text-indent:4px}
+    .seg{padding:2px}
+    .seg button{font-size:12.5px; letter-spacing:1px; padding:5px 14px}
+    .chips{padding:0 12px 8px; gap:6px}
+    .chip{font-size:12px; padding:3px 12px}
+
+    .grid{grid-template-columns:minmax(0,1fr); align-items:stretch; gap:30px; padding:22px 12px 36px}
+    #grid-a, #grid-b, #grid-main{grid-template-columns:minmax(0,1fr)}
+    #grid-a > .branch:not(:first-child),
+    #grid-b > .branch:not(:first-child){border-left:0}
+    .grid + .grid{margin-top:2px}
+    .branch{
+      width:100%; padding-left:0; align-items:stretch;
+      --cw:106px; --ch:58px; --gap:22px; --lip:7px; --fs-name:14px; --fs-year:10.5px;
+    }
+    h2{font-size:15.5px; letter-spacing:6px; text-indent:6px; margin-bottom:18px; align-self:center}
+    .tree-wrap{padding-bottom:6px; scrollbar-width:none}
+    .tree-wrap::-webkit-scrollbar{display:none}
+    .tree{padding-left:30px; justify-content:flex-start}
+    .tree > .node{flex:none}
+    .gen{font-size:11px; letter-spacing:3px}
+
+    .text{padding:18px 12px 44px; gap:16px}
+    .tgrid{gap:16px}
+    .tgrid .tb{flex:1 1 100%; max-width:none}
+    .tb{padding:18px 16px 8px}
+    .tb h2{margin-bottom:6px}
+    .tg{grid-template-columns:22px 1fr; gap:0 10px; padding:11px 0}
+    .tg .gl{font-size:12.5px; letter-spacing:3px}
+    .pe{padding:8px 8px; margin:0 -8px; scroll-margin-top:130px}
+    .pe .n{font-size:16px}
+    .pe .r{font-size:13px; line-height:1.8}
+    .hint{padding-bottom:26px}
+  }
+
+  @media (max-width:360px){
+    .branch{--cw:94px; --ch:54px; --gap:20px; --lip:6px; --fs-name:13px; --fs-year:10px}
+    .bar{padding:8px 10px 6px}
+    .top h1{font-size:16px; letter-spacing:3px; text-indent:3px}
+    .seg button{font-size:12px; padding:4px 12px}
+    .grid{padding:16px 8px 28px; gap:24px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important; scroll-behavior:auto !important}
+  }
+  @media print{
+    .top,.hint,.swipe{display:none}
+    .branch,.tb{break-inside:avoid}
+    .tree{overflow:visible}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="bar">
+    <h1>张氏族谱</h1>
+    <div class="seg" role="group" aria-label="视图切换">
+      <button type="button" data-view="tree">图谱</button>
+      <button type="button" data-view="text">文字</button>
+    </div>
+  </div>
+  <nav class="chips" id="chips" aria-label="分支筛选"></nav>
+</header>
+
+<main id="view-tree">
+  <div class="grid" id="grid-a"></div>
+  <div class="grid" id="grid-b"></div>
+  <div class="grid grid-main" id="grid-main"></div>
+  <p class="hint">点击卡片查看文字详情</p>
+</main>
+
+<main id="view-text" class="text"></main>
+
+<script>
+const BRANCHES = [
+  { title:'张文辉支', grid:'grid-a', gens:['世次未定','',''], textGens:['一代','二代','三代'], root:{ name:'张文辉', children:[
+    { name:'张裕强', yr:'1988' },
+    { name:'张裕雄', yr:'1990', spouse:{ name:'戴友红', yr:'1989.06.18' }, children:[
+      { name:'张浩楠' }, { name:'张浩宇' }
+    ]}
+  ]}},
+  { title:'张远清支', grid:'grid-a', gens:['廿二世','廿三世','廿四世'], root:{ name:'张远清', yr:'1969', spouse:{ name:'曾思娟', yr:'1971' }, children:[
+    { name:'张裕志', yr:'1993', spouse:{ name:'陈靖仪', yr:'1995' }, children:[
+      { name:'张乐源', yr:'2025' }
+    ]},
+    { name:'张裕玲' }
+  ]}},
+  { title:'张群林支', grid:'grid-a', gens:['廿三世','廿四世'], root:{ name:'张群林', yr:'1968', spouse:{ name:'彭波', yr:'1979' }, children:[
+    { name:'张楚崎', yr:'2004' }
+  ]}},
+  { title:'张汉贤支', grid:'grid-b', gens:['廿二世','廿三世','廿四世'], root:{ name:'张汉贤', yr:'1919–2007', spouse:{ name:'王炎招', yr:'1932–2007' }, children:[
+    { name:'张桂英', yr:'1960' },
+    { name:'张志标', yr:'1963', spouse:{ name:'彭新梅', yr:'1962' }, children:[
+      { name:'张玲', yr:'1987' }
+    ]},
+    { name:'张小英', yr:'1967' },
+    { name:'张志东', yr:'1969', spouse:{ name:'饶小瑜', yr:'1974' }, children:[
+      { name:'张逸', yr:'2002' }
+    ]}
+  ]}},
+  { title:'张清飞支', grid:'grid-b', gens:['廿二世','廿三世','廿四世'], root:{ name:'张清飞', yr:'1962', spouse:{ name:'廖小利', yr:'1971' }, children:[
+    { name:'张裕文', yr:'1990', spouse:{ name:'黄宝迷', yr:'1990' }, children:[
+      { name:'张圆圆' }, { name:'张圆亮' }
+    ]},
+    { name:'张裕良', yr:'1992', spouse:{ name:'伍慈媚', yr:'1993' }, children:[
+      { name:'张铭灏' }
+    ]}
+  ]}},
+  { title:'张文枢支', grid:'grid-main', gens:['廿三世','廿四世','廿五世'], root:{
+    name:'张文枢', yr:'1931–2007', yrFull:'1931.01.14–2007.03.15',
+    spouse:{ name:'王荣娣', yr:'1933–2022', yrFull:'1933.02.27–2022.10' }, children:[
+    { name:'张伟良', yr:'1953–2012', yrFull:'1953.10.25–2012.08', spouse:{ name:'丘思萍', yr:'1959.03.30' }, children:[
+      { name:'张海彬', yr:'1990.10.16' }, { name:'张巧玉' }, { name:'张仕兰' },
+      { name:'张利兰' }, { name:'张美兰' }
+    ]},
+    { name:'张伟渊', yr:'1956.09.03', spouse:{ name:'周美英', yr:'1961.03.19' }, children:[
+      { name:'张幸兰' }, { name:'张云彬', yr:'1993.08.16' }
+    ]},
+    { name:'张伟炎', yr:'1965.02.28', spouse:{ name:'罗新兰', yr:'1968.07.28' }, children:[
+      { name:'张兴彬', yr:'1993.08.07' }, { name:'张兴芳' }, { name:'张梅芳' }
+    ]},
+    { name:'张伟龙', yr:'1970.06.10', spouse:{ name:'蓝仕红', yr:'1973.04.30' }, children:[
+      { name:'张盛彬', yr:'2003.10.21' }, { name:'张柳清' }
+    ]},
+    { name:'张利珍' }, { name:'张利英' }, { name:'张红珍' }
+  ]}}
+];
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const viewTree = $('#view-tree');
+const viewText = $('#view-text');
+const isMobile = () => window.innerWidth <= 700;
+
+/* ---------- 图谱渲染 ---------- */
+function personHTML(name, yr){
+  return `<span class="nm">${name}</span>${yr ? `<span class="yr">${yr}</span>` : ''}`;
+}
+function cardHTML(n, depth){
+  const inner = n.spouse
+    ? `<div class="p">${personHTML(n.name, n.yr)}</div><div class="p">${personHTML(n.spouse.name, n.spouse.yr)}</div>`
+    : personHTML(n.name, n.yr);
+  return `<div class="card${n.spouse ? ' cp' : ''}" data-depth="${depth}" data-id="${n.name}" tabindex="0" title="查看文字详情">${inner}</div>`;
+}
+function nodeHTML(n, depth){
+  const kids = n.children || [];
+  return `<div class="node">${cardHTML(n, depth)}${
+    kids.length ? `<ul>${kids.map(c => `<li>${nodeHTML(c, depth + 1)}</li>`).join('')}</ul>` : ''
+  }</div>`;
+}
+BRANCHES.forEach(b => {
+  const el = document.createElement('div');
+  el.className = 'branch';
+  el.dataset.branch = b.title;
+  el.innerHTML = `<h2>${b.title}</h2><div class="tree-wrap"><div class="tree">${nodeHTML(b.root, 0)}</div></div><p class="swipe">左右滑动查看</p>`;
+  document.getElementById(b.grid).appendChild(el);
+});
+
+function offsetWithin(node, root){
+  let x = 0, y = 0;
+  while (node && node !== root){ x += node.offsetLeft; y += node.offsetTop; node = node.offsetParent; }
+  return { x, y };
+}
+function placeGens(){
+  $$('#view-tree .branch:not([hidden])').forEach(el => {
+    const b = BRANCHES.find(x => x.title === el.dataset.branch);
+    const tree = el.querySelector('.tree');
+    tree.querySelectorAll('.gen').forEach(g => g.remove());
+    b.gens.forEach((label, depth) => {
+      if (!label) return;
+      const cards = [...tree.querySelectorAll(`.card[data-depth="${depth}"]`)];
+      if (!cards.length) return;
+      const pos = cards.map(c => offsetWithin(c, tree));
+      const left = Math.min(...pos.map(p => p.x));
+      const g = document.createElement('span');
+      g.className = 'gen';
+      g.textContent = label;
+      g.style.top = pos[0].y + 'px';
+      g.style.left = Math.max(0, left - 34) + 'px';
+      tree.appendChild(g);
+    });
+  });
+}
+function layoutTrees(){
+  $$('#view-tree .branch:not([hidden])').forEach(el => {
+    const wrap = el.querySelector('.tree-wrap');
+    const tree = el.querySelector('.tree');
+    tree.style.transform = '';
+    wrap.style.height = '';
+    el.classList.remove('scrollable');
+
+    const avail = wrap.clientWidth;
+    const natural = tree.offsetWidth;
+
+    const rawScale = avail > 0 ? avail / natural : 1;
+    wrap.style.overflowX = '';
+    wrap.style.overflowY = '';
+
+    if (rawScale < 1 && rawScale >= .45){
+      const s = Math.max(.45, Math.floor(rawScale * 990) / 1000);
+      wrap.style.justifyContent = 'center';
+      tree.style.transform = `scale(${s})`;
+      wrap.style.height = Math.ceil(tree.offsetHeight * s) + 'px';
+      wrap.style.overflowX = 'clip';
+      wrap.style.overflowY = 'clip';
+    } else {
+      const box = natural - avail;
+      wrap.style.justifyContent = box > 4 ? 'flex-start' : 'center';
+      if (box > 4){
+        el.classList.add('scrollable');
+        wrap.style.overflowY = 'hidden';
+        wrap.scrollLeft = box / 2;
+      }
+    }
+  });
+  placeGens();
+}
+
+/* ---------- 文字渲染 ---------- */
+const PARENT = {};
+function walk(n, fn, depth = 0, parent = null){
+  fn(n, depth, parent);
+  (n.children || []).forEach(c => walk(c, fn, depth + 1, n));
+}
+function link(name){ return `<span class="lk" data-goto="${name}">${name}</span>`; }
+
+function branchText(b){
+  const levels = [];
+  walk(b.root, (n, d, p) => { (levels[d] ||= []).push(n); if (p) PARENT[n.name] = p; });
+  const labels = b.textGens || b.gens;
+  return `<section class="tb" data-branch="${b.title}"><h2>${b.title}</h2>${
+    levels.map((list, d) => `<div class="tg"><div class="gl">${labels[d] || ''}</div><div>${
+      list.map(n => {
+        const p = PARENT[n.name];
+        const rows = [];
+        if (p) rows.push(`<b>父母</b>${link(p.name)}${p.spouse ? ' · ' + p.spouse.name : ''}`);
+        if (n.spouse) rows.push(`<b>配偶</b>${n.spouse.name}${(n.spouse.yrFull || n.spouse.yr) ? '　' + (n.spouse.yrFull || n.spouse.yr) : ''}`);
+        if (n.children?.length) rows.push(`<b>子女</b>${n.children.map(c => link(c.name)).join('、')}`);
+        const yr = n.yrFull || n.yr;
+        return `<div class="pe" id="p-${n.name}">
+          <div class="h"><span class="n" data-show="${n.name}" title="在图谱中查看">${n.name}</span>${yr ? `<span class="y">${yr}</span>` : ''}</div>
+          ${rows.map(r => `<div class="r">${r}</div>`).join('')}
+        </div>`;
+      }).join('')
+    }</div></div>`).join('')
+  }</section>`;
+}
+
+viewText.innerHTML = ['grid-a','grid-b','grid-main'].map(g => `<div class="tgrid${g === 'grid-main' ? ' main' : ''}">${
+  BRANCHES.filter(b => b.grid === g).map(branchText).join('')
+}</div>`).join('');
+
+/* ---------- 状态与交互 ---------- */
+const state = { view:'tree', branch:'all' };
+
+$('#chips').innerHTML = ['all', ...BRANCHES.map(b => b.title)]
+  .map(t => `<button type="button" class="chip" data-b="${t}">${t === 'all' ? '全部' : t}</button>`).join('');
+
+function readHash(){
+  const p = new URLSearchParams(location.hash.slice(1));
+  state.view = p.get('v') === 'text' ? 'text' : 'tree';
+  const b = p.get('b');
+  state.branch = BRANCHES.some(x => x.title === b) ? b : 'all';
+}
+function writeHash(){
+  const q = 'v=' + state.view + (state.branch !== 'all' ? '&b=' + encodeURIComponent(state.branch) : '');
+  history.replaceState(null, '', '#' + q);
+}
+function apply(){
+  $$('.seg button').forEach(btn => btn.setAttribute('aria-pressed', String(btn.dataset.view === state.view)));
+  $$('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.b === state.branch)));
+  viewTree.hidden = state.view !== 'tree';
+  viewText.hidden = state.view !== 'text';
+  $$('[data-branch]').forEach(el => { el.hidden = state.branch !== 'all' && el.dataset.branch !== state.branch; });
+  writeHash();
+  if (state.view === 'tree') requestAnimationFrame(layoutTrees);
+}
+function flash(el){
+  el.classList.add('hit');
+  setTimeout(() => el.classList.remove('hit'), 1600);
+}
+function branchOf(name){
+  return BRANCHES.find(b => { let hit = false; walk(b.root, n => { if (n.name === name) hit = true; }); return hit; }).title;
+}
+function jump(view, name){
+  state.view = view;
+  if (state.branch !== 'all' && state.branch !== branchOf(name)) state.branch = 'all';
+  apply();
+  const target = view === 'text'
+    ? document.getElementById('p-' + name)
+    : viewTree.querySelector(`.card[data-id="${name}"]`);
+  if (!target) return;
+  target.scrollIntoView({ behavior:'smooth', block:'center', inline:'center' });
+  flash(target);
+}
+
+$('.seg').addEventListener('click', e => {
+  const v = e.target.closest('button')?.dataset.view;
+  if (!v || v === state.view) return;
+  state.view = v; apply(); window.scrollTo({ top:0 });
+});
+$('#chips').addEventListener('click', e => {
+  const b = e.target.closest('.chip')?.dataset.b;
+  if (!b) return;
+  state.branch = b; apply(); window.scrollTo({ top:0, behavior:'smooth' });
+});
+viewTree.addEventListener('click', e => {
+  const card = e.target.closest('.card');
+  if (card) jump('text', card.dataset.id);
+});
+viewTree.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const card = e.target.closest('.card');
+  if (card){ e.preventDefault(); jump('text', card.dataset.id); }
+});
+viewText.addEventListener('click', e => {
+  const go = e.target.closest('[data-goto]');
+  if (go){
+    const el = document.getElementById('p-' + go.dataset.goto);
+    el.scrollIntoView({ behavior:'smooth', block:'center' });
+    flash(el);
+    return;
+  }
+  const show = e.target.closest('[data-show]');
+  if (show) jump('tree', show.dataset.show);
+});
+
+let rt;
+window.addEventListener('resize', () => {
+  clearTimeout(rt);
+  rt = setTimeout(() => { if (state.view === 'tree') layoutTrees(); chipsMask(); }, 160);
+});
+
+const chipsEl = $('#chips');
+function chipsMask(){
+  const more = chipsEl.scrollWidth - chipsEl.clientWidth > 4;
+  chipsEl.classList.toggle('more', more);
+  chipsEl.classList.toggle('end', more && chipsEl.scrollLeft > chipsEl.scrollWidth - chipsEl.clientWidth - 4);
+}
+chipsEl.addEventListener('scroll', chipsMask, { passive:true });
+
+readHash();
+apply();
+chipsMask();
+</script>
+</body>
+</html>
