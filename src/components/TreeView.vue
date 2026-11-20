@@ -1,10 +1,12 @@
 <script setup>
 import { computed } from 'vue'
-import BranchTree from './BranchTree.vue'
+import BranchCanvas from './BranchCanvas.vue'
 
 const props = defineProps({
   branches: { type: Array, required: true },
-  filterKey: { type: String, default: 'all' }
+  filterKey: { type: String, default: 'all' },
+  focusKey: { type: Number, default: 0 },
+  focusName: { type: String, default: '' }
 })
 const emit = defineEmits(['open'])
 
@@ -30,10 +32,12 @@ const groupList = computed(() =>
       class="grid"
       :class="`grid-${group.id}`"
     >
-      <BranchTree
+      <BranchCanvas
         v-for="branch in group.items"
         :key="`${branch.key}-${filterKey}`"
         :branch="branch"
+        :focus-key="focusKey"
+        :focus-name="focusName"
         @open="emit('open', $event)"
       />
     </div>

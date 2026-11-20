@@ -7,6 +7,8 @@ import { branches } from './data/branches.js'
 
 const view = ref('tree')
 const branchKey = ref('all')
+const focusName = ref('')
+const focusKey = ref(0)
 
 function readHash() {
   const params = new URLSearchParams(location.hash.slice(1))
@@ -53,10 +55,8 @@ async function gotoTree(name) {
   view.value = 'tree'
   if (branchKey.value !== 'all' && branchKey.value !== branchOf(name)) branchKey.value = 'all'
   await nextTick()
-  await wait(160)
-  const el = document.querySelector(`.card[data-id="${name}"]`)
-  el?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
-  flash(el)
+  focusName.value = name
+  focusKey.value += 1
 }
 
 function jumpTo(name) {
@@ -89,6 +89,8 @@ function setBranch(key) {
     v-if="view === 'tree'"
     :branches="branches"
     :filter-key="branchKey"
+    :focus-key="focusKey"
+    :focus-name="focusName"
     @open="gotoText"
   />
   <TextView
