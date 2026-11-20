@@ -9,7 +9,7 @@ Vue 3 + Vite 单页应用：图谱 / 文字双视图、按分支筛选、PC 与�
 直链示例（图谱 + 只看文枢支）：
 https://xmpxraw.github.io/zhang_zp/#v=tree&b=wenshu
 
-> hash 参数：`v=tree|text` 切视图，`b=<分支key>` 筛分支（`wenhui` / `yuanqing` / `qunlin` / `hanxian` / `qingfei` / `wenshu`），省略即全部。
+> hash 参数：`v=tree|text` 切视图，`b=<分支key>` 筛分支（`qingxin` / `hanxian` / `qunlin` / `wenshu`），省略即全部。
 
 ## 命令
 
