@@ -15,7 +15,7 @@ const visible = computed(() =>
 )
 
 const groupList = computed(() =>
-  ['a', 'b', 'main'].map((id) => ({
+  ['main', 'a', 'b'].map((id) => ({
     id,
     items: visible.value.filter((b) => b.group === id)
   })).filter((g) => g.items.length)

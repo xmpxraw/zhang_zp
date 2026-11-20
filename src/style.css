@@ -151,8 +151,8 @@ body {
   width: 100%;
 }
 .grid + .grid { border-top: 1px dashed rgba(176, 141, 87, 0.28); }
-.grid-a { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.grid-b { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-a { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-b { grid-template-columns: minmax(0, 1fr); }
 .grid-main { grid-template-columns: minmax(0, 1fr); }
 .grid-a > .branch:not(:first-child),
 .grid-b > .branch:not(:first-child) {
@@ -350,7 +350,7 @@ body {
   width: 100%;
 }
 .tgrid-a > .tb { flex: 1 1 340px; min-width: 0; }
-.tgrid-b > .tb { flex: 1 1 380px; min-width: 0; }
+.tgrid-b > .tb { flex: 1 1 100%; max-width: 1180px; margin: 0 auto; }
 .tgrid-main > .tb { flex: 1 1 100%; max-width: 1180px; margin: 0 auto; }
 
 .tb {
@@ -430,7 +430,6 @@ body {
   .grid { gap: 34px 18px; padding: 34px 18px 48px; }
   .branch { padding-left: 18px; }
   .grid-a { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .grid-a > .branch:nth-child(3) { border-left: 0; }
   .grid-b { grid-template-columns: minmax(0, 1fr); }
   .grid-b > .branch:not(:first-child) { border-left: 0; }
 }
