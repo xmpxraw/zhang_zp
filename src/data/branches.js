@@ -118,6 +118,39 @@ export const branches = [
     }
   },
   {
+    key: 'qiupeng',
+    title: '张秋朋支',
+    group: 'b',
+    gens: ['廿二世', '廿三世', '廿四世'],
+    root: {
+      name: '张秋朋', yr: '1933–2010',
+      spouse: { name: '陈清招', yr: '1942' },
+      children: [
+        {
+          name: '张维忠', yr: '1962–2018',
+          spouse: { name: '王小娟', yr: '1963' },
+          children: [
+            { name: '张兴', yr: '1988' },
+            { name: '张苑' }
+          ]
+        },
+        {
+          name: '张维军', yr: '1968',
+          spouse: { name: '廖家英', yr: '1972' },
+          children: [{ name: '张芸菁' }]
+        },
+        {
+          name: '张维兵', yr: '1969',
+          spouse: { name: '刘静娜', yr: '1975' },
+          children: [{ name: '张惠宁' }, { name: '张梓凌' }]
+        },
+        { name: '张维丽' },
+        { name: '张维新' },
+        { name: '张美娟' }
+      ]
+    }
+  },
+  {
     key: 'wenshu',
     title: '张文枢支',
     group: 'b',
