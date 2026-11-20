@@ -1,6 +1,7 @@
 # zhang_zp · 张氏族谱
 
 Vue 3 + Vite 单页应用：图谱 / 文字双视图、按分支筛选、PC 与手机自适应。
+图谱用 Canvas 绘制，支持滚轮 / 双指缩放（不设最小比例限制）、拖动平移、双击还原；点击卡片跳文字。
 
 在线地址（GitHub Pages，主）：https://xmpxraw.github.io/zhang_zp/
 
@@ -42,10 +43,8 @@ src/
   data/branches.js    # 族谱数据（唯一数据源）
   components/
     TopBar.vue        # 顶栏：标题 / 视图切换 / 分支筛选
-    TreeView.vue      # 图谱视图（a / b / main 三组网格）
-    BranchTree.vue    # 单个分支树：等比缩放与横向滑动适配
-    TreeNode.vue      # 递归节点
-    PersonCard.vue    # 人物卡片（单人 / 夫妻）
+    TreeView.vue      # 图谱视图（main / a / b 三组网格）
+    BranchCanvas.vue  # 单支 Canvas 渲染：布局、连线、缩放与拖动
     TextView.vue      # 文字视图分组
     BranchText.vue    # 谱牒式条目
 ```
